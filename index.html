@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobilienbewertung - Property Valuation Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: inset 0 -3px 0 rgba(255,255,255,0.3);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: "📊";
+            margin-right: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .image-upload {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        }
+
+        .image-upload:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        }
+
+        .image-upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .image-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .image-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .image-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .results-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .result-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .result-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .calculation-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .detail-item strong {
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Immobilienbewertung</h1>
+            <p>Professionelle Ertragswertermittlung für Ihre Immobilie</p>
+        </div>
+
+        <div class="main-card">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('property-data')">Objektdaten</button>
+                <button class="nav-tab" onclick="showTab('images')">Bilder</button>
+                <button class="nav-tab" onclick="showTab('calculation')">Bewertung</button>
+            </div>
+
+            <!-- Property Data Tab -->
+            <div id="property-data" class="tab-content active">
+                <div class="form-section">
+                    <h3 class="section-title">Grundinformationen</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="owner">Eigentümer/in</label>
+                            <input type="text" id="owner" placeholder="Name des Eigentümers">
+                        </div>
+                        <div class="form-group">
+                            <label for="street">Straße</label>
+                            <input type="text" id="street" placeholder="Straße und Hausnummer">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">Ort</label>
+                            <input type="text" id="city" placeholder="PLZ Ort">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Gebäudedaten</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="building-type">Gebäudeart</label>
+                            <select id="building-type">
+                                <option value="">Bitte wählen</option>
+                                <option value="einfamilienhaus">Einfamilienhaus</option>
+                                <option value="zweifamilienhaus">Zweifamilienhaus</option>
+                                <option value="dreifamilienhaus">Dreifamilienhaus</option>
+                                <option value="mehrfamilienhaus">Mehrfamilienhaus</option>
+                                <option value="reihenhaus">Reihenhaus</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="usage-type">Nutzungsart</label>
+                            <select id="usage-type">
+                                <option value="">Bitte wählen</option>
+                                <option value="vermietet">Vermietet</option>
+                                <option value="eigengenutzt">Eigengenutzt</option>
+                                <option value="teilweise-vermietet">Teilweise vermietet</option>
+                                <option value="leerstand">Leerstand</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="construction-year">Baujahr</label>
+                            <input type="number" id="construction-year" placeholder="z.B. 1955">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="renovation-year">Jahr Umbau/Sanierung</label>
+                            <input type="number" id="renovation-year" placeholder="z.B. 1992 (optional)">
+                        </div>
+                        <div class="form-group">
+                            <label for="living-area">Wohnfläche (m²)</label>
+                            <input type="number" id="living-area" placeholder="z.B. 215">
+                        </div>
+                        <div class="form-group">
+                            <label for="units">Anzahl Wohneinheiten</label>
+                            <input type="number" id="units" placeholder="z.B. 3">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="garage-spaces">Garagenstellplätze</label>
+                            <input type="number" id="garage-spaces" placeholder="z.B. 2">
+                        </div>
+                        <div class="form-group">
+                            <label for="parking-spaces">Außenstellplätze</label>
+                            <input type="number" id="parking-spaces" placeholder="z.B. 0">
+                        </div>
+                        <div class="form-group">
+                            <label for="elevator">Aufzug</label>
+                            <select id="elevator">
+                                <option value="nein">Nein</option>
+                                <option value="ja">Ja</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Grundstücksdaten</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="plot-area">Grundstücksfläche (m²)</label>
+                            <input type="number" id="plot-area" placeholder="z.B. 2106">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Lage</label>
+                            <select id="location">
+                                <option value="">Bitte wählen</option>
+                                <option value="sehr-gut">Sehr gut</option>
+                                <option value="gut">Gut</option>
+                                <option value="mittel">Mittel</option>
+                                <option value="einfach">Einfach</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="land-value">Bodenwert (€/m²)</label>
+                            <input type="number" id="land-value" placeholder="z.B. 185">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Mietdaten</h3>
+                    <div id="rental-units">
+                        <div class="form-row rental-unit">
+                            <div class="form-group">
+                                <label>Wohneinheit 1 - Fläche (m²)</label>
+                                <input type="number" class="unit-area" placeholder="z.B. 75">
+                            </div>
+                            <div class="form-group">
+                                <label>Miete pro m² (€)</label>
+                                <input type="number" class="unit-rent" placeholder="z.B. 6.20" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addRentalUnit()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-top: 10px;">+ Weitere Wohneinheit</button>
+                </div>
+            </div>
+
+            <!-- Images Tab -->
+            <div id="images" class="tab-content">
+                <div class="form-section">
+                    <h3 class="section-title">Immobilienbilder hochladen</h3>
+                    <div class="image-upload" onclick="document.getElementById('image-input').click()">
+                        <div class="image-upload-icon">📷</div>
+                        <h3>Bilder hochladen</h3>
+                        <p>Klicken Sie hier oder ziehen Sie Bilder hierher</p>
+                        <small>Unterstützte Formate: JPG, PNG, WebP</small>
+                    </div>
+                    <input type="file" id="image-input" multiple accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    <div id="image-preview" class="image-preview"></div>
+                </div>
+            </div>
+
+            <!-- Calculation Tab -->
+            <div id="calculation" class="tab-content">
+                <div class="form-section">
+                    <h3 class="section-title">Ertragswertberechnung</h3>
+                    <button class="calculate-btn" onclick="calculateValue()">Immobilienwert berechnen</button>
+                    
+                    <div id="results" class="results-section" style="display: none;">
+                        <h3>Bewertungsergebnis</h3>
+                        <div class="result-card">
+                            <div class="result-value" id="total-value">€ 0</div>
+                            <div class="result-label">Vorläufiger Ertragswert</div>
+                        </div>
+                        
+                        <div class="calculation-details">
+                            <div class="detail-item">
+                                <strong>Bodenwert:</strong><br>
+                                <span id="land-value-result">€ 0</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Gebäudeertragswert:</strong><br>
+                                <span id="building-value-result">€ 0</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Jahresrohertrag:</strong><br>
+                                <span id="annual-income-result">€ 0</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Reinertrag:</strong><br>
+                                <span id="net-income-result">€ 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedImages = [];
+        let rentalUnitCount = 1;
+
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            const preview = document.getElementById('image-preview');
+            
+            for (let file of files) {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageData = {
+                            id: Date.now() + Math.random(),
+                            src: e.target.result,
+                            name: file.name
+                        };
+                        uploadedImages.push(imageData);
+                        displayImages();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+
+        function displayImages() {
+            const preview = document.getElementById('image-preview');
+            preview.innerHTML = '';
+            
+            uploadedImages.forEach(image => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                imageItem.innerHTML = `
+                    <img src="${image.src}" alt="${image.name}">
+                    <button class="image-remove" onclick="removeImage('${image.id}')">×</button>
+                `;
+                preview.appendChild(imageItem);
+            });
+        }
+
+        function removeImage(imageId) {
+            uploadedImages = uploadedImages.filter(img => img.id != imageId);
+            displayImages();
+        }
+
+        function addRentalUnit() {
+            rentalUnitCount++;
+            const rentalUnits = document.getElementById('rental-units');
+            const newUnit = document.createElement('div');
+            newUnit.className = 'form-row rental-unit';
+            newUnit.innerHTML = `
+                <div class="form-group">
+                    <label>Wohneinheit ${rentalUnitCount} - Fläche (m²)</label>
+                    <input type="number" class="unit-area" placeholder="z.B. 75">
+                </div>
+                <div class="form-group">
+                    <label>Miete pro m² (€)</label>
+                    <input type="number" class="unit-rent" placeholder="z.B. 6.20" step="0.01">
+                </div>
+            `;
+            rentalUnits.appendChild(newUnit);
+        }
+
+        function calculateValue() {
+            // Get form values
+            const plotArea = parseFloat(document.getElementById('plot-area').value) || 0;
+            const landValuePerSqm = parseFloat(document.getElementById('land-value').value) || 0;
+            const constructionYear = parseInt(document.getElementById('construction-year').value) || 0;
+            const renovationYear = parseInt(document.getElementById('renovation-year').value) || constructionYear;
+            
+            // Calculate land value
+            const totalLandValue = plotArea * landValuePerSqm;
+            
+            // Calculate rental income
+            let totalAnnualRent = 0;
+            const rentalUnits = document.querySelectorAll('.rental-unit');
+            rentalUnits.forEach(unit => {
+                const area = parseFloat(unit.querySelector('.unit-area').value) || 0;
+                const rentPerSqm = parseFloat(unit.querySelector('.unit-rent').value) || 0;
+                totalAnnualRent += area * rentPerSqm * 12;
+            });
+            
+            // Add garage rent (simplified)
+            const garageSpaces = parseInt(document.getElementById('garage-spaces').value) || 0;
+            totalAnnualRent += garageSpaces * 50 * 12; // €50/month per garage
+            
+            // Calculate operating costs (30% as per German standard)
+            const operatingCosts = totalAnnualRent * 0.30;
+            const netIncome = totalAnnualRent - operatingCosts;
+            
+            // Calculate remaining useful life
+            const currentYear = new Date().getFullYear();
+            const effectiveYear = renovationYear > constructionYear ? renovationYear : constructionYear;
+            const buildingAge = currentYear - effectiveYear;
+            const remainingLife = Math.max(80 - buildingAge, 0); // Assuming 80 years total life
+            
+            // Calculate building value (simplified multiplier method)
+            const interestRate = 0.032; // 3.2% as shown in PDF
+            const multiplier = remainingLife > 0 ? (1 - Math.pow(1 + interestRate, -remainingLife)) / interestRate : 0;
+            
+            const landIncomeShare = totalLandValue * interestRate;
+            const buildingIncomeShare = netIncome - landIncomeShare;
+            const buildingValue = buildingIncomeShare * multiplier;
+            
+            const totalValue = totalLandValue + buildingValue;
+            
+            // Display results
+            document.getElementById('total-value').textContent = `€ ${Math.round(totalValue).toLocaleString()}`;
+            document.getElementById('land-value-result').textContent = `€ ${Math.round(totalLandValue).toLocaleString()}`;
+            document.getElementById('building-value-result').textContent = `€ ${Math.round(buildingValue).toLocaleString()}`;
+            document.getElementById('annual-income-result').textContent = `€ ${Math.round(totalAnnualRent).toLocaleString()}`;
+            document.getElementById('net-income-result').textContent = `€ ${Math.round(netIncome).toLocaleString()}`;
+            
+            document.getElementById('results').style.display = 'block';
+            
+            // Enable PDF download button
+            document.getElementById('download-pdf-btn').disabled = false;
+            
+            // Show calculation tab
+            showTab('calculation');
+            document.querySelector('[onclick="showTab(\'calculation\')"]').classList.add('active');
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Get current date
+            const currentDate = new Date().toLocaleDateString('de-DE');
+            
+            // Get form values
+            const owner = document.getElementById('owner').value || 'Nicht angegeben';
+            const street = document.getElementById('street').value || 'Nicht angegeben';
+            const city = document.getElementById('city').value || 'Nicht angegeben';
+            const buildingType = document.getElementById('building-type').value || 'Nicht angegeben';
+            const usageType = document.getElementById('usage-type').value || 'Nicht angegeben';
+            const constructionYear = document.getElementById('construction-year').value || 'Nicht angegeben';
+            const renovationYear = document.getElementById('renovation-year').value || 'Nicht angegeben';
+            const livingArea = document.getElementById('living-area').value || 'Nicht angegeben';
+            const units = document.getElementById('units').value || 'Nicht angegeben';
+            const plotArea = document.getElementById('plot-area').value || 'Nicht angegeben';
+            const location = document.getElementById('location').value || 'Nicht angegeben';
+            const landValue = document.getElementById('land-value').value || 'Nicht angegeben';
+            const garageSpaces = document.getElementById('garage-spaces').value || '0';
+            const parkingSpaces = document.getElementById('parking-spaces').value || '0';
+            const elevator = document.getElementById('elevator').value || 'Nein';
+            
+            // Get calculated values
+            const totalValue = document.getElementById('total-value').textContent;
+            const landValueResult = document.getElementById('land-value-result').textContent;
+            const buildingValueResult = document.getElementById('building-value-result').textContent;
+            const annualIncomeResult = document.getElementById('annual-income-result').textContent;
+            const netIncomeResult = document.getElementById('net-income-result').textContent;
+            
+            // Set font
+            doc.setFont('helvetica');
+            
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(102, 126, 234);
+            doc.text('IMMOBILIENBEWERTUNG', 20, 25);
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Bewertungsstichtag: ${currentDate}`, 20, 35);
+            
+            // Property Information
+            let yPos = 50;
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('OBJEKTBESCHREIBUNG', 20, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            
+            const propertyInfo = [
+                [`Eigentümer/in:`, owner],
+                [`Straße:`, street],
+                [`Ort:`, city],
+                [`Gebäudeart:`, buildingType],
+                [`Nutzungsart:`, usageType],
+                [`Baujahr:`, constructionYear],
+                [`Jahr Umbau/Sanierung:`, renovationYear],
+                [`Wohnfläche in m²:`, livingArea],
+                [`Anzahl der Wohneinheiten:`, units],
+                [`Anzahl der Garagenstellplätze:`, garageSpaces],
+                [`Anzahl Außenstellplätze:`, parkingSpaces],
+                [`Aufzug:`, elevator]
+            ];
+            
+            propertyInfo.forEach(([label, value]) => {
+                doc.text(label, 20, yPos);
+                doc.text(value, 80, yPos);
+                yPos += 8;
+            });
+            
+            // Grundstück Information
+            yPos += 10;
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('GRUNDSTÜCK', 20, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            
+            const plotInfo = [
+                [`Grundstücksfläche in m²:`, plotArea],
+                [`Lage laut Bodenrichtwertzone:`, location],
+                [`Durchschnittlicher Bodenwert in €/m²:`, landValue]
+            ];
+            
+            plotInfo.forEach(([label, value]) => {
+                doc.text(label, 20, yPos);
+                doc.text(value, 80, yPos);
+                yPos += 8;
+            });
+            
+            // Calculation Results
+            yPos += 15;
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(102, 126, 234);
+            doc.text('BEWERTUNGSERGEBNIS', 20, yPos);
+            yPos += 15;
+            
+            // Main result box
+            doc.setDrawColor(102, 126, 234);
+            doc.setLineWidth(2);
+            doc.rect(20, yPos - 5, 170, 25);
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(102, 126, 234);
+            doc.text('Vorläufiger Ertragswert:', 25, yPos + 5);
+            doc.text(totalValue, 25, yPos + 15);
+            yPos += 35;
+            
+            // Detailed results
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 0, 0);
+            doc.text('BERECHNUNGSDETAILS', 20, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            
+            const results = [
+                [`Bodenwert:`, landValueResult],
+                [`Gebäudeertragswert:`, buildingValueResult],
+                [`Jahresrohertrag:`, annualIncomeResult],
+                [`Reinertrag:`, netIncomeResult]
+            ];
+            
+            results.forEach(([label, value]) => {
+                doc.text(label, 20, yPos);
+                doc.text(value, 80, yPos);
+                yPos += 8;
+            });
+            
+            // Footer
+            yPos = 280;
+            doc.setFontSize(8);
+            doc.setTextColor(128, 128, 128);
+            doc.text('Diese Wertermittlung nach dem Ertragswertverfahren (§§27 - 34 ImmoWertV) ist sorgfältig erstellt,', 20, yPos);
+            doc.text('Fehler können jedoch nicht vollständig ausgeschlossen werden.', 20, yPos + 5);
+            doc.text(`Erstellt am: ${currentDate} | Immobilienbewertung Portal`, 20, yPos + 15);
+            
+            // Generate filename
+            const filename = `Ertragswert_${owner.replace(/\s+/g, '_')}_${currentDate.replace(/\./g, '-')}.pdf`;
+            
+            // Save PDF
+            doc.save(filename);
+        }
+
+        // Add drag and drop functionality
+        const imageUpload = document.querySelector('.image-upload');
+        
+        imageUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageUpload.style.borderColor = '#764ba2';
+        });
+        
+        imageUpload.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            imageUpload.style.borderColor = '#667eea';
+        });
+        
+        imageUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageUpload.style.borderColor = '#667eea';
+            
+            const files = e.dataTransfer.files;
+            const event = { target: { files: files } };
+            handleImageUpload(event);
+        });
+    </script>
+</body>
+</html>
